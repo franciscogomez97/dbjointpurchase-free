@@ -131,6 +131,7 @@ class Dbjointpurchase extends Module
      */
     protected function getConfigForm()
     {
+        $options = $this->getProductOptions();
         $fields_form = array(
             'form' => array(
                 'legend' => array(
@@ -154,6 +155,19 @@ class Dbjointpurchase extends Module
                         'name' => 'DBJOINT_EXCLUDE',
                         'class' => 'disabled',
                     ),
+                    array(
+                        'type' => 'select',
+                        'label' => $this->l('Selecciona productos relacionados'),
+                        'desc' => $this->l('Busca y selecciona hasta 3 productos relacionados.'),
+                        'name' => 'DBJOINT_MANUAL_RELATED_PRODUCTS[]',
+                        'class' => 'chosen',
+                        'multiple' => true,
+                        'options' => array(
+                            'query' => $options,
+                            'id' => 'id_product',
+                            'name' => 'name'
+                        ),
+                    ),
                 ),
                 'submit' => array(
                     'title' => $this->l('Save'),
@@ -175,6 +189,7 @@ class Dbjointpurchase extends Module
         return array(
             'DBJOINT_COLOR' => Configuration::get('DBJOINT_COLOR'),
             'DBJOINT_EXCLUDE' => Configuration::get('DBJOINT_EXCLUDE'),
+            'DBJOINT_MANUAL_RELATED_PRODUCTS' => Configuration::get('DBJOINT_MANUAL_RELATED_PRODUCTS'),
         );
     }
 
@@ -186,9 +201,17 @@ class Dbjointpurchase extends Module
         $form_values = $this->getConfigFormValues();
 
         foreach (array_keys($form_values) as $key) {
-            Configuration::updateValue($key, Tools::getValue($key));
-        }
+            if ($key == 'DBJOINT_MANUAL_RELATED_PRODUCTS') {
+                $value = Tools::getValue($key);
+                if (is_array($value)) {
+                    $value = implode(',', $value);
+                }
+                Configuration::updateValue($key, $value);
+            } else {
+                Configuration::updateValue($key, Tools::getValue    ($key));
+            }
     }
+}
 
     /**
      * Add the CSS & JavaScript files you want to be added on the BO.
@@ -430,4 +453,13 @@ class Dbjointpurchase extends Module
 
         return $excludes;
     }
+
+    public function getProductOptions()
+    {
+        $sql = "SELECT id_product, name FROM " . _DB_PREFIX_ .      "product_lang WHERE id_lang = " . (int)     $this->context->language->id;
+        $results = Db::getInstance()->executeS($sql);
+
+        return $results;
+    }
+
 }
