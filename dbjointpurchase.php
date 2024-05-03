@@ -204,6 +204,7 @@ class Dbjointpurchase extends Module
             if ($key == 'DBJOINT_MANUAL_RELATED_PRODUCTS') {
                 $value = Tools::getValue($key);
                 if (is_array($value)) {
+                    $value = array_slice($value, 0, 3);
                     $value = implode(',', $value);
                 }
                 Configuration::updateValue($key, $value);

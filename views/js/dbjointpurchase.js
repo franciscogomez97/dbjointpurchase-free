@@ -168,4 +168,15 @@ $( document ).ready(function() {
         $("#btn_dbjointpurchase").attr("disabled","disabled");
     }
 
+    // Selection limit to 3
+    $(document).ready(function() {
+        $('.chosen').select2().on('change', function() {
+            if ($(this).select2('data').length > 3) {
+                var selected = $(this).val().slice(0, 3);
+                $(this).val(selected).trigger('change');
+                alert('Solo puedes seleccionar hasta 3 productos relacionados.');
+            }
+        });
+    });
+
 });
